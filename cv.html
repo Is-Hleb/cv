@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Глеб Ищенко — Tech Lead</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080810;
+    --surface: #0f0f1a;
+    --surface2: #141424;
+    --border: #1a1a2e;
+    --border-bright: #2a2a45;
+    --text: #e8e8f0;
+    --muted: #5a5a7a;
+    --accent: #7c6af7;
+    --accent2: #4ecdc4;
+    --accent3: #f7c36a;
+    --green: #6affa0;
+    --red: #ff6b6b;
+    --glow: rgba(124,106,247,0.15);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND ── */
+  .bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,247,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,247,0.035) 1px, transparent 1px);
+    background-size: 64px 64px;
+    animation: gridDrift 20s linear infinite;
+  }
+
+  @keyframes gridDrift {
+    0% { background-position: 0 0; }
+    100% { background-position: 64px 64px; }
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    animation: orbFloat 15s ease-in-out infinite;
+  }
+  .orb1 { width:600px; height:600px; top:-200px; right:-150px; background:radial-gradient(circle, rgba(124,106,247,0.1) 0%, transparent 70%); animation-delay:0s; }
+  .orb2 { width:400px; height:400px; bottom:-100px; left:-100px; background:radial-gradient(circle, rgba(78,205,196,0.07) 0%, transparent 70%); animation-delay:-5s; }
+  .orb3 { width:300px; height:300px; top:50%; left:40%; background:radial-gradient(circle, rgba(247,195,106,0.04) 0%, transparent 70%); animation-delay:-10s; }
+
+  @keyframes orbFloat {
+    0%,100% { transform: translate(0,0) scale(1); }
+    25% { transform: translate(20px,-30px) scale(1.05); }
+    50% { transform: translate(-10px,20px) scale(0.95); }
+    75% { transform: translate(30px,10px) scale(1.02); }
+  }
+
+  /* Scanline effect */
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 60px 44px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── REVEAL ANIMATION ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── HEADER ── */
+  .header { margin-bottom: 72px; }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+  }
+
+  .name-wrapper { position: relative; }
+
+  .name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(52px, 9vw, 92px);
+    font-weight: 800;
+    line-height: 0.88;
+    letter-spacing: -4px;
+    background: linear-gradient(140deg, #ffffff 0%, #c4b8ff 45%, #7c6af7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    animation: nameGlow 4s ease-in-out infinite;
+  }
+
+  @keyframes nameGlow {
+    0%,100% { filter: drop-shadow(0 0 20px rgba(124,106,247,0.3)); }
+    50% { filter: drop-shadow(0 0 40px rgba(124,106,247,0.6)); }
+  }
+
+  .name-glitch {
+    position: absolute;
+    inset: 0;
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(52px, 9vw, 92px);
+    font-weight: 800;
+    line-height: 0.88;
+    letter-spacing: -4px;
+    color: var(--accent2);
+    -webkit-text-fill-color: var(--accent2);
+    opacity: 0;
+    animation: glitch 8s infinite;
+    pointer-events: none;
+    clip-path: inset(40% 0 50% 0);
+  }
+
+  @keyframes glitch {
+    0%,94%,100% { opacity:0; transform:translate(0); }
+    95% { opacity:0.4; transform:translate(-3px, 1px); clip-path:inset(20% 0 60% 0); }
+    96% { opacity:0.4; transform:translate(3px,-1px); clip-path:inset(60% 0 10% 0); }
+    97% { opacity:0; }
+    98% { opacity:0.3; transform:translate(-2px,0); clip-path:inset(40% 0 40% 0); }
+  }
+
+  .header-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid rgba(106,255,160,0.3);
+    border-radius: 2px;
+    background: rgba(106,255,160,0.05);
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(106,255,160,0.6); }
+    50% { box-shadow: 0 0 0 5px rgba(106,255,160,0); }
+  }
+
+  .status-text {
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .role-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .role-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 5px 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+    padding-right: 24px;
+  }
+
+  .role-sub {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .contact-strip {
+    margin-top: 24px;
+    display: flex;
+    gap: 0;
+    flex-wrap: wrap;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 11px;
+    color: var(--muted);
+    border-right: 1px solid var(--border);
+    transition: all 0.3s;
+    cursor: default;
+  }
+  .contact-item:last-child { border-right: none; }
+  .contact-item:hover { background: rgba(124,106,247,0.07); color: var(--accent2); }
+  .contact-icon { color: var(--accent); font-style: normal; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 60px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .section-num {
+    font-size: 9px;
+    color: var(--accent);
+    opacity: 0.5;
+    letter-spacing: 1px;
+  }
+
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-bright) 0%, transparent 100%);
+  }
+
+
+
+  /* ── SUMMARY ── */
+  .summary-box {
+    position: relative;
+    padding: 24px 28px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .summary-box::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2), var(--accent3));
+  }
+
+  .summary-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    color: rgba(232,232,240,0.88);
+    font-style: normal;
+    font-weight: 300;
+  }
+
+  /* ── ACHIEVEMENTS ── */
+  .ach-group { margin-bottom: 28px; }
+
+  .ach-group-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent2);
+  }
+  .ach-group-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(78,205,196,0.15);
+  }
+
+  .ach-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 13px 18px;
+    margin-bottom: 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    transition: all 0.25s ease;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ach-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(124,106,247,0.06), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .ach-item:hover {
+    border-color: rgba(124,106,247,0.4);
+    transform: translateX(5px);
+  }
+  .ach-item:hover::after { opacity: 1; }
+
+  .ach-left-bar {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2));
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+    transform-origin: top;
+  }
+  .ach-item:hover .ach-left-bar { transform: scaleY(1); }
+
+  .ach-num {
+    font-size: 9px;
+    color: var(--accent);
+    min-width: 18px;
+    padding-top: 3px;
+    opacity: 0.5;
+    font-weight: 300;
+  }
+
+  .ach-text {
+    font-size: 12.5px;
+    color: rgba(232,232,240,0.78);
+    line-height: 1.65;
+  }
+
+  .metric {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent3);
+    position: relative;
+  }
+
+  .metric::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 1px;
+    background: var(--accent3);
+    opacity: 0.4;
+  }
+
+  /* ── JOBS ── */
+  .job-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .job-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .job-card:hover {
+    border-color: var(--border-bright);
+    box-shadow: 0 0 30px rgba(124,106,247,0.06);
+    transform: translateY(-2px);
+  }
+  .job-card:hover::before { opacity: 1; }
+
+  .job-header {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .job-role {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .job-company {
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  .job-desc {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .job-period {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+    letter-spacing: 0.5px;
+  }
+
+  .job-location {
+    font-size: 9px;
+    color: var(--muted);
+    opacity: 0.5;
+    text-align: right;
+    margin-top: 2px;
+  }
+
+  .job-body { padding: 14px 24px 18px; }
+
+  .job-bullet {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 7px;
+    align-items: flex-start;
+  }
+
+  .job-arrow {
+    color: var(--accent);
+    font-size: 10px;
+    min-width: 14px;
+    margin-top: 3px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+  .job-card:hover .job-arrow { opacity: 0.9; }
+
+  .job-bullet-text {
+    font-size: 12px;
+    color: rgba(232,232,240,0.72);
+    line-height: 1.6;
+  }
+
+  .stack-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .tag {
+    font-size: 9px;
+    padding: 3px 9px;
+    border: 1px solid var(--border-bright);
+    color: var(--muted);
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .tag:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,106,247,0.05); }
+
+  /* ── SKILLS VISUAL ── */
+  .skills-section {}
+
+  .skill-category {
+    margin-bottom: 32px;
+  }
+
+  .skill-cat-title {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .skill-bar-item {
+    display: grid;
+    grid-template-columns: 180px 1fr auto;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .skill-bar-name {
+    font-size: 11px;
+    color: rgba(232,232,240,0.75);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .skill-bar-track {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: visible;
+    position: relative;
+  }
+
+  .skill-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    width: 0;
+    transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .skill-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: inherit;
+    box-shadow: 0 0 8px currentColor;
+  }
+
+  .fill-senior { background: linear-gradient(90deg, var(--accent), #a89ef5); }
+  .fill-upper-middle { background: linear-gradient(90deg, var(--accent2), #7ae8e4); }
+  .fill-middle { background: linear-gradient(90deg, #4e9dcd, var(--accent2)); }
+  .fill-basic { background: linear-gradient(90deg, var(--muted), #7a7a9a); }
+
+  .skill-level-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    min-width: 60px;
+    text-align: right;
+  }
+  .lbl-senior { color: var(--accent); }
+  .lbl-upper-middle { color: var(--accent2); }
+  .lbl-middle { color: #4e9dcd; }
+  .lbl-basic { color: var(--muted); }
+
+  /* Tech cloud */
+  .tech-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .tech-pill {
+    font-size: 10px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-bright);
+    color: rgba(232,232,240,0.65);
+    transition: all 0.25s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tech-pill::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .tech-pill:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(124,106,247,0.2);
+  }
+  .tech-pill:hover::before { opacity: 0.08; }
+
+  .tech-pill span { position: relative; z-index: 1; }
+
+  /* ── LANGUAGES ── */
+  .lang-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .lang-card {
+    flex: 1;
+    min-width: 140px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lang-card:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-2px);
+  }
+
+  .lang-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+  .lang-card:hover::before { transform: scaleX(1); }
+
+  .lang-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .lang-level {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  .lang-bar {
+    margin-top: 10px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .lang-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    width: 0;
+    transition: width 1.4s cubic-bezier(0.16,1,0.3,1) 0.3s;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.4;
+  }
+
+  .fab-group {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .print-btn, .lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .print-btn {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 24px rgba(124,106,247,0.4);
+  }
+  .print-btn:hover {
+    background: #9585f9;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(124,106,247,0.5);
+  }
+
+  .lang-btn {
+    background: var(--surface2);
+    color: var(--accent2);
+    border: 1px solid rgba(78,205,196,0.3);
+    box-shadow: 0 4px 20px rgba(78,205,196,0.1);
+  }
+  .lang-btn:hover {
+    background: rgba(78,205,196,0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(78,205,196,0.2);
+  }
+  .lang-btn .flag { font-style: normal; font-size: 14px; }
+
+  body.switching .t { opacity: 0; }
+  .t { transition: opacity 0.2s ease; }
+
+  /* ── PRINT ── */
+  @media print {
+    :root {
+      --bg: #ffffff;
+      --surface: #f8f8fc;
+      --surface2: #f0f0f8;
+      --border: #e0e0ee;
+      --border-bright: #c8c8e0;
+      --text: #1a1a2e;
+      --muted: #6b6b8a;
+      --accent: #5540d4;
+      --accent2: #1a8f8a;
+      --accent3: #b8860b;
+      --green: #1a7a40;
+    }
+
+    body { background: white; }
+    body * { animation: none !important; transition: none !important; }
+    .bg-canvas, .scanlines, .orb, .print-btn { display: none !important; }
+    .name { -webkit-text-fill-color: #2a1a6e; filter: none !important; }
+    .name-glitch { display: none; }
+    .container { padding: 24px 32px; }
+    .section { margin-bottom: 28px; }
+    .header { margin-bottom: 28px; }
+    .job-card { box-shadow: none !important; transform: none !important; }
+    .ach-item { transform: none !important; }
+
+    .skill-bar-fill { width: var(--target-width) !important; }
+    .lang-bar-fill { width: var(--target-width) !important; }
+    .footer { display: none; }
+    @page { margin: 1.2cm; size: A4; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="grid-lines"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="scanlines"></div>
+</div>
+
+<div class="fab-group">
+  <button class="lang-btn" id="langBtn" onclick="toggleLang()"><i class="flag">🇬🇧</i> <span id="langBtnLabel">English</span></button>
+  <button class="print-btn" onclick="window.print()">⌘ <span class="t" data-ru="Сохранить PDF" data-en="Save PDF">Сохранить PDF</span></button>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="header reveal">
+    <div class="header-top">
+      <div class="name-wrapper">
+        <div class="name">Глеб<br>Ищенко</div>
+        <div class="name-glitch">Глеб<br>Ищенко</div>
+      </div>
+      <div class="header-status">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span class="status-text t" data-ru="Open to work" data-en="Open to work">Open to work</span>
+        </div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-align:right;">Warsaw, 2026</div>
+      </div>
+    </div>
+    <div class="role-row">
+      <span class="role-badge">Tech Lead</span>
+      <span class="role-sub t" data-ru="Backend Engineer" data-en="Backend Engineer">Backend Engineer</span>
+    </div>
+    <div class="contact-strip">
+      <div class="contact-item"><i class="contact-icon">📍</i> <span class="t" data-ru="Варшава, Польша" data-en="Warsaw, Poland">Варшава, Польша</span></div>
+      <div class="contact-item"><i class="contact-icon">✉</i> hlebishenko@gmail.com</div>
+      <div class="contact-item"><i class="contact-icon">☎</i> +48 790 497 541</div>
+    </div>
+  </header>
+
+  <!-- SUMMARY -->
+  <section class="section reveal">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-label t" data-ru="Профиль" data-en="Profile">Профиль</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="summary-box">
+      <p class="summary-text t" data-ru="Tech Lead с 5+ годами опыта в PHP-разработке и управлении командами до 15 человек. Специализируюсь на оптимизации delivery-процессов, автоматизации и высоконагруженных системах. Работаю как бизнес-ориентированный лид — перевожу технические решения в измеримый результат для бизнеса. Опыт архитектурного проектирования, бюджетного планирования и интеграции ML-моделей в production." data-en="Tech Lead with 5+ years of experience in PHP development and managing teams of up to 15 engineers. I specialise in optimising delivery processes, automation, and high-load systems. I work as a business-oriented lead — translating technical solutions into measurable business outcomes. Background in architectural design, budget planning, and integrating ML models into production.">Tech Lead с 5+ годами опыта в PHP-разработке и управлении командами до 15 человек. Специализируюсь на оптимизации delivery-процессов, автоматизации и высоконагруженных системах. Работаю как бизнес-ориентированный лид — перевожу технические решения в измеримый результат для бизнеса. Опыт архитектурного проектирования, бюджетного планирования и интеграции ML-моделей в production.</p>
+    </div>
+  </section>
+
+  <!-- ACHIEVEMENTS -->
+  <section class="section reveal">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-label t" data-ru="Достижения" data-en="Achievements">Достижения</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="ach-group">
+      <div class="ach-group-title t" data-ru="Как лид" data-en="As a Lead">Как лид</div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">01</span><span class="ach-text t" data-ru="Выстроил бесшовный процесс delivery: переход от GitFlow к trunk-based + автотесты и CI/CD" data-en="Built a seamless delivery process: migrated from GitFlow to trunk-based development + automated tests and CI/CD">Выстроил бесшовный процесс delivery: переход от GitFlow к trunk-based + автотесты и CI/CD</span></div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">02</span><span class="ach-text"><span class="t" data-ru="Сэкономил" data-en="Saved">Сэкономил</span> <span class="metric">$20,000/мес</span> <span class="t" data-ru="на инфраструктуре связи — разработал план миграции от глобальных провайдеров к локальным" data-en="per month on telecom infrastructure — designed a migration plan from global to local providers and led implementation">на инфраструктуре связи — разработал план миграции от глобальных провайдеров к локальным</span></span></div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">03</span><span class="ach-text"><span class="t" data-ru="Внедрил AI-инструменты в разработку — эффективность команды" data-en="Introduced AI tools into development — team efficiency">Внедрил AI-инструменты в разработку — эффективность команды</span> <span class="metric">+130%</span> <span style="color:var(--muted);font-size:11px" class="t" data-ru="(time-in-status, Jira)" data-en="(time-in-status metric, Jira)">(time-in-status, Jira)</span></span></div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">04</span><span class="ach-text"><span class="t" data-ru="За год написали" data-en="Over one year wrote">За год написали</span> <span class="metric">700+</span> <span class="t" data-ru="юнит и" data-en="unit tests and">юнит и</span> <span class="metric">130</span> <span class="t" data-ru="e2e тестов: баги" data-en="e2e tests: bugs reduced by">e2e тестов: баги</span> <span class="metric">−1.5×</span><span class="t" data-ru=", время релизов" data-en=", release time reduced by">, время релизов</span> <span class="metric">−2×</span></span></div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">05</span><span class="ach-text"><span class="t" data-ru="Выстроили планирование для" data-en="Built a planning process for">Выстроили планирование для</span> <span class="metric">12</span> <span class="t" data-ru="заказчиков: квартальный бэклог + демо + груминг — перестали срывать дедлайны" data-en="stakeholders: quarterly backlog + sprint demos + grooming — eliminated deadline misses">заказчиков: квартальный бэклог + демо + груминг — перестали срывать дедлайны</span></span></div>
+    </div>
+
+    <div class="ach-group">
+      <div class="ach-group-title t" data-ru="People Management" data-en="People Management">People Management</div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">01</span><span class="ach-text t" data-ru="Вырастил разработчика до тимлида подкоманды: делегировал сервис, передал 2 человека в управление, менторил" data-en="Grew a developer into a sub-team lead: delegated a service, gave ownership of 2 reports, provided ongoing mentorship">Вырастил разработчика до тимлида подкоманды: делегировал сервис, передал 2 человека в управление, менторил</span></div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">02</span><span class="ach-text t" data-ru="Обучил тестировщиков писать e2e-тесты: встречи вне рабочего времени, разбор кода, материалы" data-en="Trained QA engineers to write e2e tests: organised off-hours sessions, code walkthroughs, and learning materials">Обучил тестировщиков писать e2e-тесты: встречи вне рабочего времени, разбор кода, материалы</span></div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">03</span><span class="ach-text"><span class="t" data-ru="Нанял и онбордил" data-en="Hired and onboarded">Нанял и онбордил</span> <span class="metric">10+</span> <span class="t" data-ru="разработчиков, внедрил IDP и систему отчётности" data-en="developers, introduced IDPs and a reporting system">разработчиков, внедрил IDP и систему отчётности</span></span></div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">04</span><span class="ach-text t" data-ru="Назначен первым замом CTO — принял под управление несколько команд" data-en="Appointed as first deputy CTO — took ownership of multiple teams">Назначен первым замом CTO — принял под управление несколько команд</span></div>
+    </div>
+
+    <div class="ach-group">
+      <div class="ach-group-title t" data-ru="Как разработчик" data-en="As a Developer">Как разработчик</div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">01</span><span class="ach-text t" data-ru="Бесшовное разделение монолита на микросервисы (feature toggle + Kubernetes)" data-en="Seamless monolith decomposition into microservices (feature toggles + Kubernetes)">Бесшовное разделение монолита на микросервисы (feature toggle + Kubernetes)</span></div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">02</span><span class="ach-text t" data-ru="Разработал аналог ActivityPub-протокола для маркетплейса: защищённые сделки, шифрование данных поверх HTTP" data-en="Designed an ActivityPub-style protocol for a marketplace: secured transactions with data encryption over HTTP">Разработал аналог ActivityPub-протокола для маркетплейса: защищённые сделки, шифрование данных поверх HTTP</span></div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">03</span><span class="ach-text t" data-ru="Перевёл массив cron-задач на событийную архитектуру: часть в Airflow, часть через RabbitMQ" data-en="Replaced bulk cron jobs with event-driven architecture: migrated to Airflow and RabbitMQ">Перевёл массив cron-задач на событийную архитектуру: часть в Airflow, часть через RabbitMQ</span></div>
+      <div class="ach-item"><div class="ach-left-bar"></div><span class="ach-num">04</span><span class="ach-text"><span class="t" data-ru="Построил систему парсинга соцсетей (" data-en="Built a social media parser (">Построил систему парсинга соцсетей (</span><span class="metric">1M+</span><span class="t" data-ru=" blob/час) с NLP-аналитикой (тональность, тренды)" data-en=" blobs/hr) with NLP analytics (sentiment analysis, trend detection)"> blob/час) с NLP-аналитикой (тональность, тренды)</span></span></div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section class="section reveal">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-label t" data-ru="Опыт работы" data-en="Experience">Опыт работы</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-header">
+        <div>
+          <div class="job-role">Team Lead</div>
+          <div class="job-company">KMA.biz</div>
+          <div class="job-desc t" data-ru="AdTech, 15+ стран, 5 000+ сотрудников. Команда 15 человек в прямом подчинении. Архитектор и разработчик CRM/ERP-систем." data-en="AdTech company, 15+ countries, 5,000+ employees. Direct team of 15 engineers. Backend architect for internal CRM/ERP systems.">AdTech, 15+ стран, 5 000+ сотрудников. Команда 15 человек в прямом подчинении. Архитектор и разработчик CRM/ERP-систем.</div>
+        </div>
+        <div>
+          <div class="job-period t" data-ru="Апр 2024 — н.в." data-en="Apr 2024 — present">Апр 2024 — н.в.</div>
+          <div class="job-location t" data-ru="Варшава, Польша" data-en="Warsaw, Poland">Варшава, Польша</div>
+        </div>
+      </div>
+      <div class="job-body">
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Переписал legacy-монолит, ввёл Go-микросервисы" data-en="Rewrote legacy monolith, introduced Go microservices">Переписал legacy-монолит, ввёл Go-микросервисы</span></div>
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Настроил мониторинг (Sentry, ELK), дашборды и логирование" data-en="Set up monitoring (Sentry, ELK), dashboards and logging">Настроил мониторинг (Sentry, ELK), дашборды и логирование</span></div>
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Автоматизировал CI/CD и release flow (~35 задач/релиз, ~3 бага/мес)" data-en="Automated CI/CD and release flow (~35 tasks/release, ~3 bugs/month)">Автоматизировал CI/CD и release flow (~35 задач/релиз, ~3 бага/мес)</span></div>
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Создал систему трекинга, повысившую продуктивность команды на ~45%" data-en="Built a tracking system that increased team productivity by ~45%">Создал систему трекинга, повысившую продуктивность команды на ~45%</span></div>
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Нанял и онбордил разработчиков, внедрил IDP и отчётность" data-en="Hired and onboarded developers, introduced IDPs and reporting">Нанял и онбордил разработчиков, внедрил IDP и отчётность</span></div>
+        <div class="stack-row">
+          <span class="tag">PHP (Yii2)</span><span class="tag">Go</span><span class="tag">MySQL</span><span class="tag">PostgreSQL</span><span class="tag">Redis</span><span class="tag">MongoDB</span><span class="tag">Docker</span><span class="tag">Kibana</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-header">
+        <div>
+          <div class="job-role">Team Lead PHP Developer</div>
+          <div class="job-company">ProfIT</div>
+          <div class="job-desc t" data-ru="Реферальная платформа, 1.5M+ пользователей." data-en="Referral platform, 1.5M+ users.">Реферальная платформа, 1.5M+ пользователей.</div>
+        </div>
+        <div>
+          <div class="job-period">2023 – 2025</div>
+          <div class="job-location">Remote</div>
+        </div>
+      </div>
+      <div class="job-body">
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Обновил стек с PHP 7.4 до 8.2 и MySQL 5.2 до 8.3" data-en="Upgraded stack from PHP 7.4 to 8.2 and MySQL 5.2 to 8.3">Обновил стек с PHP 7.4 до 8.2 и MySQL 5.2 до 8.3</span></div>
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Улучшил сбор данных по спринтам и прозрачность процессов" data-en="Improved sprint data collection and process visibility">Улучшил сбор данных по спринтам и прозрачность процессов</span></div>
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Участвовал в найме и онбординге junior-разработчиков" data-en="Participated in hiring and onboarding junior developers">Участвовал в найме и онбординге junior-разработчиков</span></div>
+        <div class="stack-row">
+          <span class="tag">PHP (Yii2)</span><span class="tag">Symfony</span><span class="tag">MySQL</span><span class="tag">Redis</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-header">
+        <div>
+          <div class="job-role">Team Lead / Support Developer</div>
+          <div class="job-company">KLCH</div>
+          <div class="job-desc t" data-ru="Парсинг соцсетей, NLP-аналитика, мониторинг новостей." data-en="Social media parsing, NLP analytics, news monitoring.">Парсинг соцсетей, NLP-аналитика, мониторинг новостей.</div>
+        </div>
+        <div>
+          <div class="job-period t" data-ru="Апр 2022 – Апр 2024" data-en="Apr 2022 – Apr 2024">Апр 2022 – Апр 2024</div>
+          <div class="job-location">Remote / <span class="t" data-ru="Варшава" data-en="Warsaw">Варшава</span></div>
+        </div>
+      </div>
+      <div class="job-body">
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Поддерживал парсер соцсетей (1M+ blob/час)" data-en="Maintained social media parser (1M+ blobs/hr)">Поддерживал парсер соцсетей (1M+ blob/час)</span></div>
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Разработал инструменты аналитики — ASUP, Omniki, News Monitor" data-en="Developed analytics tools — ASUP, Omniki, News Monitor">Разработал инструменты аналитики — ASUP, Omniki, News Monitor</span></div>
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Внедрил структурированную разработку: GitLab, ChatOps, Jira" data-en="Introduced structured development practices: GitLab, ChatOps, Jira">Внедрил структурированную разработку: GitLab, ChatOps, Jira</span></div>
+        <div class="stack-row">
+          <span class="tag">Laravel</span><span class="tag">Go</span><span class="tag">Python</span><span class="tag">MongoDB</span><span class="tag">ClickHouse</span><span class="tag">gRPC</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-header">
+        <div>
+          <div class="job-role">Middle PHP Developer</div>
+          <div class="job-company">SLMAX Group</div>
+        </div>
+        <div>
+          <div class="job-period t" data-ru="Апр 2020 – Апр 2021" data-en="Apr 2020 – Apr 2021">Апр 2020 – Апр 2021</div>
+          <div class="job-location">Remote</div>
+        </div>
+      </div>
+      <div class="job-body">
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Построил интеграции с логистическими провайдерами и системами трекинга" data-en="Built integrations with logistics providers and campaign tracking systems">Построил интеграции с логистическими провайдерами и системами трекинга</span></div>
+        <div class="job-bullet"><span class="job-arrow">→</span><span class="job-bullet-text t" data-ru="Рефакторинг и оптимизация legacy PHP-кода" data-en="Refactored and optimised legacy PHP codebase">Рефакторинг и оптимизация legacy PHP-кода</span></div>
+        <div class="stack-row">
+          <span class="tag">PHP 8.1+</span><span class="tag">Redis</span><span class="tag">MongoDB</span><span class="tag">MySQL</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="section reveal">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-label t" data-ru="Навыки" data-en="Skills">Навыки</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="skill-category">
+      <div class="skill-cat-title t" data-ru="Основной стек" data-en="Core Stack">Основной стек</div>
+      <div class="skill-bars">
+        <div class="skill-bar-item">
+          <span class="skill-bar-name">PHP / Laravel / Yii2 / Symfony</span>
+          <div class="skill-bar-track"><div class="skill-bar-fill fill-senior" data-width="92%" style="--target-width:92%"></div></div>
+          <span class="skill-level-label lbl-senior">Senior</span>
+        </div>
+        <div class="skill-bar-item">
+          <span class="skill-bar-name">RabbitMQ</span>
+          <div class="skill-bar-track"><div class="skill-bar-fill fill-senior" data-width="88%" style="--target-width:88%"></div></div>
+          <span class="skill-level-label lbl-senior">Senior</span>
+        </div>
+        <div class="skill-bar-item">
+          <span class="skill-bar-name">MySQL / PostgreSQL / Redis</span>
+          <div class="skill-bar-track"><div class="skill-bar-fill fill-upper-middle" data-width="74%" style="--target-width:74%"></div></div>
+          <span class="skill-level-label lbl-upper-middle">Middle</span>
+        </div>
+        <div class="skill-bar-item">
+          <span class="skill-bar-name">GitLab CI/CD / GitHub Actions</span>
+          <div class="skill-bar-track"><div class="skill-bar-fill fill-upper-middle" data-width="72%" style="--target-width:72%"></div></div>
+          <span class="skill-level-label lbl-upper-middle">Middle</span>
+        </div>
+        <div class="skill-bar-item">
+          <span class="skill-bar-name">Sentry / ELK / Grafana</span>
+          <div class="skill-bar-track"><div class="skill-bar-fill fill-middle" data-width="68%" style="--target-width:68%"></div></div>
+          <span class="skill-level-label lbl-middle">Middle</span>
+        </div>
+        <div class="skill-bar-item">
+          <span class="skill-bar-name">Go</span>
+          <div class="skill-bar-track"><div class="skill-bar-fill fill-middle" data-width="62%" style="--target-width:62%"></div></div>
+          <span class="skill-level-label lbl-middle">Middle</span>
+        </div>
+        <div class="skill-bar-item">
+          <span class="skill-bar-name">Docker / k8s / Terraform</span>
+          <div class="skill-bar-track"><div class="skill-bar-fill fill-middle" data-width="65%" style="--target-width:65%"></div></div>
+          <span class="skill-level-label lbl-middle">Middle</span>
+        </div>
+        <div class="skill-bar-item">
+          <span class="skill-bar-name">Python / ML / NLP</span>
+          <div class="skill-bar-track"><div class="skill-bar-fill fill-basic" data-width="44%" style="--target-width:44%"></div></div>
+          <span class="skill-level-label lbl-basic">Basic</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-category">
+      <div class="skill-cat-title t" data-ru="Дополнительные технологии" data-en="Additional Technologies">Дополнительные технологии</div>
+      <div class="tech-cloud">
+        <div class="tech-pill"><span>Node.js / NestJS</span></div>
+        <div class="tech-pill"><span>FastAPI / Flask</span></div>
+        <div class="tech-pill"><span>Flutter</span></div>
+        <div class="tech-pill"><span>Airflow</span></div>
+        <div class="tech-pill"><span>Airbyte</span></div>
+        <div class="tech-pill"><span>Debezium</span></div>
+        <div class="tech-pill"><span>ClickHouse</span></div>
+        <div class="tech-pill"><span>MongoDB</span></div>
+        <div class="tech-pill"><span>gRPC</span></div>
+        <div class="tech-pill"><span>PHPUnit</span></div>
+        <div class="tech-pill"><span>Playwright</span></div>
+        <div class="tech-pill"><span>DDD</span></div>
+        <div class="tech-pill"><span>Microservices</span></div>
+        <div class="tech-pill"><span>Smart Contracts</span></div>
+        <div class="tech-pill"><span>PyTorch / TF</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LANGUAGES -->
+  <section class="section reveal">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-label t" data-ru="Языки" data-en="Languages">Языки</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="lang-grid">
+      <div class="lang-card">
+        <div class="lang-name t" data-ru="Русский" data-en="Russian">Русский</div>
+        <div class="lang-level">Native</div>
+        <div class="lang-bar"><div class="lang-bar-fill fill-senior" data-width="100%" style="--target-width:100%; background:linear-gradient(90deg,var(--accent),#a89ef5)"></div></div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-name t" data-ru="Английский" data-en="English">Английский</div>
+        <div class="lang-level">B1 — Intermediate</div>
+        <div class="lang-bar"><div class="lang-bar-fill" data-width="55%" style="--target-width:55%; background:linear-gradient(90deg,var(--accent2),#7ae8e4)"></div></div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-name t" data-ru="Польский" data-en="Polish">Польский</div>
+        <div class="lang-level">A2 — Elementary</div>
+        <div class="lang-bar"><div class="lang-bar-fill" data-width="28%" style="--target-width:28%; background:linear-gradient(90deg,#4e9dcd,var(--accent2))"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <span class="t" data-ru="Глеб Ищенко — CV 2026" data-en="Hleb Ishchenko — CV 2026">Глеб Ищенко — CV 2026</span>
+    <span>Warsaw, Poland</span>
+  </div>
+
+</div>
+
+<script>
+  // ── REVEAL ──
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // ── SKILL BARS ──
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const fills = entry.target.querySelectorAll('.skill-bar-fill, .lang-bar-fill');
+        fills.forEach((fill, i) => {
+          setTimeout(() => { fill.style.width = fill.dataset.width; }, i * 100);
+        });
+        barObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.skill-category, .lang-grid').forEach(el => barObserver.observe(el));
+
+  // ── LANG TOGGLE ──
+  let currentLang = 'ru';
+
+  function toggleLang() {
+    const next = currentLang === 'ru' ? 'en' : 'ru';
+
+    // Fade out
+    document.body.classList.add('switching');
+
+    setTimeout(() => {
+      // Swap all .t elements
+      document.querySelectorAll('.t').forEach(el => {
+        const val = el.dataset[next];
+        if (val !== undefined) el.textContent = val;
+      });
+
+      // Update button
+      const btn = document.getElementById('langBtn');
+      const label = document.getElementById('langBtnLabel');
+      if (next === 'en') {
+        btn.querySelector('.flag').textContent = '🇷🇺';
+        label.textContent = 'Русский';
+        document.documentElement.lang = 'en';
+      } else {
+        btn.querySelector('.flag').textContent = '🇬🇧';
+        label.textContent = 'English';
+        document.documentElement.lang = 'ru';
+      }
+
+      currentLang = next;
+
+      // Fade in
+      document.body.classList.remove('switching');
+    }, 220);
+  }
+</script>
+</body>
+</html>
