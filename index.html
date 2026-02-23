@@ -102,8 +102,8 @@
   /* ── REVEAL ANIMATION ── */
   .reveal {
     opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
   }
   .reveal.visible {
     opacity: 1;
@@ -551,9 +551,9 @@
 
   .skill-bar-item {
     display: grid;
-    grid-template-columns: 180px 1fr auto;
+    grid-template-columns: 200px 1fr 56px;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
   }
 
   .skill-bar-name {
@@ -562,14 +562,16 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
   }
 
   .skill-bar-track {
     height: 3px;
     background: var(--border);
     border-radius: 2px;
-    overflow: visible;
+    overflow: hidden;
     position: relative;
+    min-width: 0;
   }
 
   .skill-bar-fill {
@@ -583,12 +585,12 @@
   .skill-bar-fill::after {
     content: '';
     position: absolute;
-    right: 0; top: 50%;
+    right: -3px; top: 50%;
     transform: translateY(-50%);
-    width: 6px; height: 6px;
+    width: 5px; height: 5px;
     border-radius: 50%;
     background: inherit;
-    box-shadow: 0 0 8px currentColor;
+    box-shadow: 0 0 6px currentColor;
   }
 
   .fill-senior { background: linear-gradient(90deg, var(--accent), #a89ef5); }
@@ -601,7 +603,7 @@
     letter-spacing: 1px;
     text-transform: uppercase;
     white-space: nowrap;
-    min-width: 60px;
+    width: 56px;
     text-align: right;
   }
   .lbl-senior { color: var(--accent); }
@@ -653,6 +655,11 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+  }
+
+  @media (max-width: 580px) {
+    .skill-bar-item { grid-template-columns: 130px 1fr 50px; }
+    .skill-bar-name { font-size: 10px; }
   }
 
   .lang-card {
@@ -742,11 +749,11 @@
   .print-btn, .lang-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 22px;
+    gap: 7px;
+    padding: 9px 16px;
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     border: none;
     border-radius: 4px;
@@ -770,13 +777,16 @@
     color: var(--accent2);
     border: 1px solid rgba(78,205,196,0.3);
     box-shadow: 0 4px 20px rgba(78,205,196,0.1);
+    padding: 8px 14px;
+    font-size: 10px;
+    letter-spacing: 1px;
   }
   .lang-btn:hover {
     background: rgba(78,205,196,0.1);
     transform: translateY(-2px);
     box-shadow: 0 8px 28px rgba(78,205,196,0.2);
   }
-  .lang-btn .flag { font-style: normal; font-size: 14px; }
+  .lang-btn .flag { font-style: normal; font-size: 13px; }
 
   body.switching .t { opacity: 0; }
   .t { transition: opacity 0.2s ease; }
@@ -833,7 +843,7 @@
 <div class="container">
 
   <!-- HEADER -->
-  <header class="header reveal">
+  <header class="header reveal visible">
     <div class="header-top">
       <div class="name-wrapper">
         <div class="name">Глеб<br>Ищенко</div>
@@ -1114,14 +1124,22 @@
   // ── REVEAL ──
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        entry.target.classList.add('visible');
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1 });
-  reveals.forEach(el => observer.observe(el));
+  }, { threshold: 0.05 });
+
+  reveals.forEach((el, i) => {
+    setTimeout(() => observer.observe(el), i * 60);
+  });
+
+  // Fallback: show everything after 400ms no matter what
+  setTimeout(() => {
+    reveals.forEach(el => el.classList.add('visible'));
+  }, 400);
 
   // ── SKILL BARS ──
   const barObserver = new IntersectionObserver((entries) => {
